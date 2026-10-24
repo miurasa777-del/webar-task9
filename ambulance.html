@@ -6,7 +6,7 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-  <title>走る救急車｜WebAR</title>
+  <title>救急車AR｜タスク9-1</title>
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -21,16 +21,29 @@
       font-family: sans-serif;
     }
 
-    #status {
+    #panel {
       position: fixed;
       top: 12px;
       left: 12px;
-      z-index: 9999;
-      padding: 10px 14px;
-      border-radius: 9px;
-      background: rgba(255, 245, 249, 0.95);
-      color: #873f5d;
-      font-size: 14px;
+      z-index: 99999;
+      padding: 10px;
+      background: rgba(255, 245, 249, 0.94);
+      border-radius: 10px;
+      color: #803a57;
+      font-size: 13px;
+    }
+
+    #status {
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #dba9bd;
+      border-radius: 8px;
+      color: #803a57;
       font-weight: bold;
     }
   </style>
@@ -40,31 +53,36 @@
 
   <a-scene
     embedded
-    vr-mode-ui="enabled:false"
+    vr-mode-ui="enabled: false"
     renderer="logarithmicDepthBuffer: true"
-    arjs="sourceType:webcam; debugUIEnabled:false;">
+    arjs="sourceType: webcam; debugUIEnabled: false;">
 
-    <!-- タスク14の独自マーカー -->
     <a-marker
       id="marker"
       type="pattern"
       url="./my-icon-marker.patt"
       emitevents="true">
 
-      <!-- 救急車全体 -->
+      <!-- 3D表示を確認する立方体（通常は非表示） -->
+      <a-box
+        id="test-box"
+        visible="false"
+        position="0 0.10 0"
+        rotation="0 45 0"
+        width="0.2"
+        height="0.2"
+        depth="0.2"
+        color="#4CC3D9">
+      </a-box>
+
+      <!-- 救急車 -->
       <a-entity
         id="ambulance"
         position="0 0 0"
-        scale="0.75 0.75 0.75"
-        animation="property: position;
-                   from: -0.07 0 0;
-                   to: 0.07 0 0;
-                   dir: alternate;
-                   dur: 2200;
-                   loop: true;
-                   easing: easeInOutSine">
+        rotation="0 0 0"
+        scale="1 1 1">
 
-        <!-- 車体 -->
+        <!-- 白い車体 -->
         <a-box
           position="-0.035 0.115 0"
           width="0.25"
@@ -108,7 +126,7 @@
           color="#86d5f7">
         </a-box>
 
-        <!-- 車体の赤いライン -->
+        <!-- 赤いライン -->
         <a-box
           position="-0.035 0.105 0.078"
           width="0.245"
@@ -125,7 +143,7 @@
           color="#ff6b81">
         </a-box>
 
-        <!-- 側面の赤い十字 -->
+        <!-- 赤い十字 -->
         <a-box
           position="-0.07 0.145 0.084"
           width="0.018"
@@ -158,19 +176,13 @@
           color="#e94562">
         </a-box>
 
-        <!-- 4つのタイヤ -->
+        <!-- タイヤ4つ -->
         <a-cylinder
           position="-0.115 0.035 0.085"
           radius="0.035"
           height="0.025"
           rotation="90 0 0"
-          color="#303039"
-          animation="property: rotation;
-                     from: 90 0 0;
-                     to: 450 0 0;
-                     dur: 1000;
-                     loop: true;
-                     easing: linear">
+          color="#303039">
         </a-cylinder>
 
         <a-cylinder
@@ -178,13 +190,7 @@
           radius="0.035"
           height="0.025"
           rotation="90 0 0"
-          color="#303039"
-          animation="property: rotation;
-                     from: 90 0 0;
-                     to: 450 0 0;
-                     dur: 1000;
-                     loop: true;
-                     easing: linear">
+          color="#303039">
         </a-cylinder>
 
         <a-cylinder
@@ -192,13 +198,7 @@
           radius="0.035"
           height="0.025"
           rotation="90 0 0"
-          color="#303039"
-          animation="property: rotation;
-                     from: 90 0 0;
-                     to: 450 0 0;
-                     dur: 1000;
-                     loop: true;
-                     easing: linear">
+          color="#303039">
         </a-cylinder>
 
         <a-cylinder
@@ -206,13 +206,7 @@
           radius="0.035"
           height="0.025"
           rotation="90 0 0"
-          color="#303039"
-          animation="property: rotation;
-                     from: 90 0 0;
-                     to: 450 0 0;
-                     dur: 1000;
-                     loop: true;
-                     easing: linear">
+          color="#303039">
         </a-cylinder>
 
         <!-- ライトバー -->
@@ -221,7 +215,7 @@
           width="0.09"
           height="0.018"
           depth="0.055"
-          color="#e5e5eb">
+          color="#dddddd">
         </a-box>
 
         <!-- 赤い点滅ライト -->
@@ -262,13 +256,19 @@
 
   </a-scene>
 
-  <div id="status">
-    AR.jsマーカーを映してください
+  <div id="panel">
+    <div id="status">AR.jsマーカーを映してください</div>
+    <button id="toggle-test" type="button">
+      青い立方体で確認
+    </button>
   </div>
 
   <script>
     const marker = document.getElementById("marker");
     const status = document.getElementById("status");
+    const ambulance = document.getElementById("ambulance");
+    const testBox = document.getElementById("test-box");
+    const testButton = document.getElementById("toggle-test");
 
     marker.addEventListener("markerFound", () => {
       status.textContent = "✓ マーカーを認識しています";
@@ -276,6 +276,19 @@
 
     marker.addEventListener("markerLost", () => {
       status.textContent = "AR.jsマーカーを映してください";
+    });
+
+    let testMode = false;
+
+    testButton.addEventListener("click", () => {
+      testMode = !testMode;
+
+      ambulance.setAttribute("visible", !testMode);
+      testBox.setAttribute("visible", testMode);
+
+      testButton.textContent = testMode
+        ? "救急車に戻す"
+        : "青い立方体で確認";
     });
   </script>
 
