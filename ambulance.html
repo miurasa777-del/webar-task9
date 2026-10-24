@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>走る救急車｜WebAR</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <!-- AR.js -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #status {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 9999;
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: rgba(255, 245, 249, 0.95);
+      color: #873f5d;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled:false"
+    renderer="logarithmicDepthBuffer: true"
+    arjs="sourceType:webcam; debugUIEnabled:false;">
+
+    <!-- タスク14の独自マーカー -->
+    <a-marker
+      id="marker"
+      type="pattern"
+      url="./my-icon-marker.patt"
+      emitevents="true">
+
+      <!-- 救急車全体 -->
+      <a-entity
+        id="ambulance"
+        position="0 0 0"
+        scale="0.75 0.75 0.75"
+        animation="property: position;
+                   from: -0.07 0 0;
+                   to: 0.07 0 0;
+                   dir: alternate;
+                   dur: 2200;
+                   loop: true;
+                   easing: easeInOutSine">
+
+        <!-- 車体 -->
+        <a-box
+          position="-0.035 0.115 0"
+          width="0.25"
+          height="0.16"
+          depth="0.15"
+          color="#ffffff">
+        </a-box>
+
+        <!-- 運転席 -->
+        <a-box
+          position="0.105 0.095 0"
+          width="0.12"
+          height="0.12"
+          depth="0.15"
+          color="#fff0f4">
+        </a-box>
+
+        <!-- フロントガラス -->
+        <a-box
+          position="0.167 0.12 0"
+          width="0.008"
+          height="0.055"
+          depth="0.105"
+          color="#86d5f7">
+        </a-box>
+
+        <!-- 左右の窓 -->
+        <a-box
+          position="0.103 0.12 0.077"
+          width="0.065"
+          height="0.05"
+          depth="0.008"
+          color="#86d5f7">
+        </a-box>
+
+        <a-box
+          position="0.103 0.12 -0.077"
+          width="0.065"
+          height="0.05"
+          depth="0.008"
+          color="#86d5f7">
+        </a-box>
+
+        <!-- 車体の赤いライン -->
+        <a-box
+          position="-0.035 0.105 0.078"
+          width="0.245"
+          height="0.018"
+          depth="0.009"
+          color="#ff6b81">
+        </a-box>
+
+        <a-box
+          position="-0.035 0.105 -0.078"
+          width="0.245"
+          height="0.018"
+          depth="0.009"
+          color="#ff6b81">
+        </a-box>
+
+        <!-- 側面の赤い十字 -->
+        <a-box
+          position="-0.07 0.145 0.084"
+          width="0.018"
+          height="0.064"
+          depth="0.008"
+          color="#e94562">
+        </a-box>
+
+        <a-box
+          position="-0.07 0.145 0.085"
+          width="0.064"
+          height="0.018"
+          depth="0.008"
+          color="#e94562">
+        </a-box>
+
+        <a-box
+          position="-0.07 0.145 -0.084"
+          width="0.018"
+          height="0.064"
+          depth="0.008"
+          color="#e94562">
+        </a-box>
+
+        <a-box
+          position="-0.07 0.145 -0.085"
+          width="0.064"
+          height="0.018"
+          depth="0.008"
+          color="#e94562">
+        </a-box>
+
+        <!-- 4つのタイヤ -->
+        <a-cylinder
+          position="-0.115 0.035 0.085"
+          radius="0.035"
+          height="0.025"
+          rotation="90 0 0"
+          color="#303039"
+          animation="property: rotation;
+                     from: 90 0 0;
+                     to: 450 0 0;
+                     dur: 1000;
+                     loop: true;
+                     easing: linear">
+        </a-cylinder>
+
+        <a-cylinder
+          position="0.105 0.035 0.085"
+          radius="0.035"
+          height="0.025"
+          rotation="90 0 0"
+          color="#303039"
+          animation="property: rotation;
+                     from: 90 0 0;
+                     to: 450 0 0;
+                     dur: 1000;
+                     loop: true;
+                     easing: linear">
+        </a-cylinder>
+
+        <a-cylinder
+          position="-0.115 0.035 -0.085"
+          radius="0.035"
+          height="0.025"
+          rotation="90 0 0"
+          color="#303039"
+          animation="property: rotation;
+                     from: 90 0 0;
+                     to: 450 0 0;
+                     dur: 1000;
+                     loop: true;
+                     easing: linear">
+        </a-cylinder>
+
+        <a-cylinder
+          position="0.105 0.035 -0.085"
+          radius="0.035"
+          height="0.025"
+          rotation="90 0 0"
+          color="#303039"
+          animation="property: rotation;
+                     from: 90 0 0;
+                     to: 450 0 0;
+                     dur: 1000;
+                     loop: true;
+                     easing: linear">
+        </a-cylinder>
+
+        <!-- ライトバー -->
+        <a-box
+          position="-0.035 0.207 0"
+          width="0.09"
+          height="0.018"
+          depth="0.055"
+          color="#e5e5eb">
+        </a-box>
+
+        <!-- 赤い点滅ライト -->
+        <a-box
+          position="-0.060 0.225 0"
+          width="0.036"
+          height="0.021"
+          depth="0.055"
+          color="#ff2020"
+          animation="property: material.opacity;
+                     from: 1;
+                     to: 0.15;
+                     dur: 350;
+                     dir: alternate;
+                     loop: true">
+        </a-box>
+
+        <!-- 青い点滅ライト -->
+        <a-box
+          position="-0.010 0.225 0"
+          width="0.036"
+          height="0.021"
+          depth="0.055"
+          color="#176bff"
+          animation="property: material.opacity;
+                     from: 0.15;
+                     to: 1;
+                     dur: 350;
+                     dir: alternate;
+                     loop: true">
+        </a-box>
+
+      </a-entity>
+
+    </a-marker>
+
+    <a-entity camera></a-entity>
+
+  </a-scene>
+
+  <div id="status">
+    AR.jsマーカーを映してください
+  </div>
+
+  <script>
+    const marker = document.getElementById("marker");
+    const status = document.getElementById("status");
+
+    marker.addEventListener("markerFound", () => {
+      status.textContent = "✓ マーカーを認識しています";
+    });
+
+    marker.addEventListener("markerLost", () => {
+      status.textContent = "AR.jsマーカーを映してください";
+    });
+  </script>
+
+</body>
+</html>
