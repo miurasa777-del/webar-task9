@@ -6,22 +6,57 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-  <title>タスク9-1 アニメーション救急車AR</title>
+  <title>タスク9-1 動く救急車AR</title>
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
 
   <script>
-    // URLに ?preview=1 があればカメラなし
     const previewMode =
       new URLSearchParams(location.search).has("preview");
 
-    // ARモードのみAR.jsを読み込む
+    // ARモードのときだけAR.jsを読み込む
     if (!previewMode) {
       document.write(
         '<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"><\/script>'
       );
     }
+
+    // 車体の移動とタイヤの回転を連動させる
+    AFRAME.registerComponent("drive-motion", {
+      schema: {
+        distance: {type: "number", default: 0.22},
+        duration: {type: "number", default: 4400},
+        wheelRadius: {type: "number", default: 0.065}
+      },
+
+      init: function () {
+        this.wheels =
+          Array.from(this.el.querySelectorAll(".wheel"));
+      },
+
+      tick: function (time) {
+        const d = this.data;
+
+        // 0 → 最大距離 → 0 の往復移動
+        const phase =
+          (time % d.duration) / d.duration;
+
+        const travel =
+          d.distance *
+          (1 - Math.cos(phase * Math.PI * 2)) / 2;
+
+        // 車体の前後移動
+        this.el.object3D.position.x = travel;
+
+        // 移動距離からタイヤの回転角度を計算
+        const angle = -travel / d.wheelRadius;
+
+        this.wheels.forEach(wheel => {
+          wheel.object3D.rotation.z = angle;
+        });
+      }
+    });
   </script>
 
   <style>
@@ -65,6 +100,7 @@
   <div id="info">
     <strong id="title">3D救急車 WebAR</strong>
     <div id="status">読み込み中...</div>
+
     <a id="mode-link" href="#">
       表示モードを切り替える
     </a>
@@ -75,103 +111,87 @@
     const status = document.getElementById("status");
     const modeLink = document.getElementById("mode-link");
 
-    // ====================================
-    // タイヤの共通部品
-    // ====================================
-    // タイヤの回転軸はZ軸
-    // 車体が前進すれば回転し、
-    // 後退すれば反対方向に回転する
+    // =====================================
+    // タイヤを作成する関数
+    // =====================================
 
-    function createWheel(x, z) {
+    function makeWheel(x, z) {
 
-      // 外側に向くホイールの面
-      const outerZ = z > 0 ? 0.022 : -0.022;
+      // 外側のホイールの位置
+      const side = z > 0 ? 1 : -1;
 
       return `
         <a-entity
-          position="${x} 0.065 ${z}"
-
-          animation="property: rotation;
-                     from: 0 0 0;
-                     to: 0 0 -79.3;
-                     dur: 2200;
-                     dir: alternate;
-                     loop: true;
-                     easing: easeInOutSine">
+          class="wheel"
+          position="${x} 0.065 ${z}">
 
           <!-- 黒いタイヤ本体 -->
           <a-cylinder
-            position="0 0 0"
             radius="0.065"
             height="0.04"
             rotation="90 0 0"
-            color="#292929">
+            color="#252525">
           </a-cylinder>
 
           <!-- 銀色のホイール -->
           <a-cylinder
-            position="0 0 ${outerZ}"
-            radius="0.035"
-            height="0.005"
+            position="0 0 ${side * 0.022}"
+            radius="0.038"
+            height="0.007"
             rotation="90 0 0"
             color="#D0D5DB">
           </a-cylinder>
 
-          <!-- ホイールの回転を確認できる線 -->
+          <!-- 回転が見える赤い目印 -->
           <a-box
-            position="0.024 0 ${outerZ}"
-            width="0.035"
+            position="0.025 0 ${side * 0.028}"
+            width="0.032"
             height="0.009"
-            depth="0.008"
-            color="#666666">
+            depth="0.006"
+            color="#F0445E">
           </a-box>
 
-          <a-box
-            position="0 0.024 ${outerZ}"
-            width="0.009"
-            height="0.035"
-            depth="0.008"
+          <!-- ホイールの中央 -->
+          <a-cylinder
+            position="0 0 ${side * 0.028}"
+            radius="0.01"
+            height="0.008"
+            rotation="90 0 0"
             color="#666666">
-          </a-box>
+          </a-cylinder>
 
         </a-entity>
       `;
     }
 
-    // ====================================
-    // 救急車全体の3Dモデル
-    // ====================================
+    // =====================================
+    // 救急車の3Dモデル
+    // =====================================
 
     const ambulanceModel = `
 
       <!--
-        外側：位置、大きさ、向き
-        内側：前進・後退アニメーション
+        外側のグループ：
+        救急車全体の位置・向き・大きさ
       -->
-
       <a-entity
         id="ambulance-placement"
         position="0.15 0 0"
         rotation="0 45 0"
         scale="0.8 0.8 0.8">
 
+        <!--
+          内側のグループ：
+          前後移動とタイヤ回転を制御
+        -->
         <a-entity
           id="ambulance"
-          position="0 0 0"
+          drive-motion="
+            distance: 0.22;
+            duration: 4400;
+            wheelRadius: 0.065">
 
-          animation="property: position;
-                     from: 0 0 0;
-                     to: 0.09 0 0;
-                     dur: 2200;
-                     dir: alternate;
-                     loop: true;
-                     easing: easeInOutSine">
-
-          <!-- =================== -->
-          <!-- 救急車の車体 -->
-          <!-- =================== -->
-
-          <!-- 後部の白い車体 -->
+          <!-- 車体後部 -->
           <a-box
             position="-0.15 0.22 0"
             width="0.40"
@@ -180,7 +200,7 @@
             color="#FFFFFF">
           </a-box>
 
-          <!-- 前部の運転席 -->
+          <!-- 運転席 -->
           <a-box
             position="0.15 0.16 0"
             width="0.20"
@@ -216,10 +236,7 @@
             color="#86D5F7">
           </a-box>
 
-          <!-- =================== -->
-          <!-- 赤いライン -->
-          <!-- =================== -->
-
+          <!-- 赤いライン：右 -->
           <a-box
             position="-0.15 0.17 0.135"
             width="0.40"
@@ -228,6 +245,7 @@
             color="#F0445E">
           </a-box>
 
+          <!-- 赤いライン：左 -->
           <a-box
             position="-0.15 0.17 -0.135"
             width="0.40"
@@ -236,11 +254,7 @@
             color="#F0445E">
           </a-box>
 
-          <!-- =================== -->
-          <!-- 赤十字 -->
-          <!-- =================== -->
-
-          <!-- 右側 -->
+          <!-- 赤十字：右側 -->
           <a-box
             position="-0.18 0.27 0.141"
             width="0.025"
@@ -257,7 +271,7 @@
             color="#E52D4D">
           </a-box>
 
-          <!-- 左側 -->
+          <!-- 赤十字：左側 -->
           <a-box
             position="-0.18 0.27 -0.141"
             width="0.025"
@@ -274,27 +288,15 @@
             color="#E52D4D">
           </a-box>
 
-          <!-- =================== -->
-          <!-- 4つのタイヤ -->
-          <!-- =================== -->
+          <!-- 前輪2本 -->
+          ${makeWheel(0.15, 0.14)}
+          ${makeWheel(0.15, -0.14)}
 
-          <!-- 前輪・右 -->
-          ${createWheel(0.15, 0.14)}
+          <!-- 後輪2本 -->
+          ${makeWheel(-0.27, 0.14)}
+          ${makeWheel(-0.27, -0.14)}
 
-          <!-- 前輪・左 -->
-          ${createWheel(0.15, -0.14)}
-
-          <!-- 後輪・右 -->
-          ${createWheel(-0.27, 0.14)}
-
-          <!-- 後輪・左 -->
-          ${createWheel(-0.27, -0.14)}
-
-          <!-- =================== -->
-          <!-- 赤青の点滅ライト -->
-          <!-- =================== -->
-
-          <!-- ライトの台 -->
+          <!-- ライトの土台 -->
           <a-box
             position="-0.10 0.39 0"
             width="0.16"
@@ -303,7 +305,7 @@
             color="#CCCCCC">
           </a-box>
 
-          <!-- 赤いライト -->
+          <!-- 赤い点滅ライト -->
           <a-box
             position="-0.14 0.42 0"
             width="0.065"
@@ -312,15 +314,16 @@
             color="#FF2222"
             material="transparent: true; opacity: 1"
 
-            animation="property: material.opacity;
-                       from: 1;
-                       to: 0.15;
-                       dur: 400;
-                       dir: alternate;
-                       loop: true">
+            animation="
+              property: material.opacity;
+              from: 1;
+              to: 0.15;
+              dur: 400;
+              dir: alternate;
+              loop: true">
           </a-box>
 
-          <!-- 青いライト -->
+          <!-- 青い点滅ライト -->
           <a-box
             position="-0.06 0.42 0"
             width="0.065"
@@ -329,19 +332,16 @@
             color="#2266FF"
             material="transparent: true; opacity: 0.15"
 
-            animation="property: material.opacity;
-                       from: 0.15;
-                       to: 1;
-                       dur: 400;
-                       dir: alternate;
-                       loop: true">
+            animation="
+              property: material.opacity;
+              from: 0.15;
+              to: 1;
+              dur: 400;
+              dir: alternate;
+              loop: true">
           </a-box>
 
-          <!-- =================== -->
-          <!-- 前面のヘッドライト -->
-          <!-- =================== -->
-
-          <!-- 右 -->
+          <!-- 右ヘッドライト -->
           <a-box
             position="0.257 0.115 0.075"
             width="0.01"
@@ -350,7 +350,7 @@
             color="#FFF5A8">
           </a-box>
 
-          <!-- 左 -->
+          <!-- 左ヘッドライト -->
           <a-box
             position="0.257 0.115 -0.075"
             width="0.01"
@@ -360,23 +360,24 @@
           </a-box>
 
         </a-entity>
-
       </a-entity>
     `;
 
-    // ====================================
+    // =====================================
     // カメラなしプレビュー
-    // ====================================
+    // =====================================
 
     if (previewMode) {
 
       title.textContent =
-        "3D救急車｜アニメーションプレビュー";
+        "3D救急車｜プレビュー";
 
       status.textContent =
-        "車体の移動・タイヤの回転・ライトの点滅";
+        "前後移動・タイヤ回転・ライト点滅";
 
-      modeLink.textContent = "マーカーARを開く";
+      modeLink.textContent =
+        "マーカーARを開く";
+
       modeLink.href = "./ambulance.html";
 
       document.body.insertAdjacentHTML(
@@ -387,11 +388,12 @@
           vr-mode-ui="enabled: false"
           background="color: #DDEBF6">
 
-          <!-- 周囲の明るさ -->
+          <!-- 環境光 -->
           <a-entity
             light="type: ambient; intensity: 0.9">
           </a-entity>
 
+          <!-- 方向光 -->
           <a-entity
             light="type: directional; intensity: 0.8"
             position="1 3 2">
@@ -406,15 +408,15 @@
             color="#DDDDDD">
           </a-plane>
 
-          <!-- 3D救急車 -->
+          <!-- 救急車 -->
           ${ambulanceModel}
 
-          <!-- カメラ -->
+          <!-- プレビュー用カメラ -->
           <a-entity
             camera
-            position="0 0.8 2.2"
+            position="0 0.7 1.8"
             look-controls="enabled: false"
-            rotation="-10 0 0">
+            rotation="-12 0 0">
           </a-entity>
 
         </a-scene>
@@ -423,9 +425,9 @@
 
     } else {
 
-      // ====================================
+      // =====================================
       // マーカー型AR
-      // ====================================
+      // =====================================
 
       title.textContent =
         "3D救急車｜マーカーAR";
@@ -446,23 +448,21 @@
           vr-mode-ui="enabled: false"
           renderer="logarithmicDepthBuffer: true"
 
-          arjs="sourceType: webcam;
-                debugUIEnabled: false;
-                detectionMode: mono;">
+          arjs="
+            sourceType: webcam;
+            debugUIEnabled: false;
+            detectionMode: mono;">
 
-          <!-- 独自マーカー -->
           <a-marker
             id="marker"
             type="pattern"
             url="./my-icon-marker.patt"
             emitevents="true">
 
-            <!-- 3D救急車 -->
             ${ambulanceModel}
 
           </a-marker>
 
-          <!-- ARカメラ -->
           <a-entity camera></a-entity>
 
         </a-scene>
