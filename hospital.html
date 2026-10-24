@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>病院で症状を伝えよう｜人体模型AR</title>
+
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: system-ui, "Noto Sans JP", sans-serif;
+  color: #783e55;
+}
+
+#header, #footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(255, 240, 246, 0.96);
+  padding: 12px;
+}
+
+#header {
+  top: 0;
+  border-bottom: 1px solid #eab9cc;
+  padding-right: 65px;
+}
+
+#footer {
+  bottom: 0;
+  border-top: 1px solid #eab9cc;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+h1 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+#status {
+  font-size: 12px;
+  color: #a74d71;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+#phrase {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+#question {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+button {
+  background: white;
+  color: #783e55;
+  border: 1px solid #e3aec2;
+  border-radius: 9px;
+  padding: 10px 3px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.selected {
+  background: #ffe174;
+}
+
+.controls {
+  display: flex;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.controls button {
+  flex: 1;
+}
+
+#hospital-icon {
+  position: absolute;
+  right: 13px;
+  top: 11px;
+  font-size: 36px;
+}
+
+small {
+  font-size: 11px;
+}
+
+a {
+  color: #9f486b;
+}
+</style>
+</head>
+
+<body>
+
+<div id="header">
+  <div id="hospital-icon">🏥</div>
+  <h1>病院で症状を伝えよう</h1>
+  <small>痛い場所を選んで、日本語で説明しましょう。</small>
+  <div id="status">AR.jsマーカーを映してください。</div>
+</div>
+
+<a-scene
+  embedded
+  vr-mode-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true"
+  arjs="sourceType: webcam; debugUIEnabled: false;">
+
+  <a-marker
+    id="marker"
+    type="pattern"
+    url="./my-icon-marker.patt"
+    emitevents="true">
+
+    <!-- 人物全体を小さく表示 -->
+    <a-entity
+      position="0 0 0"
+      scale="0.65 0.65 0.65">
+
+      <!-- 向きを調整する中心 -->
+      <a-entity
+        id="pose"
+        position="0 0.36 0"
+        rotation="0 0 0">
+
+        <a-entity position="0 -0.36 0">
+
+          <!-- 頭 -->
+          <a-sphere
+            id="part-head"
+            position="0 0.64 0"
+            radius="0.105"
+            color="#f4bfa6">
+          </a-sphere>
+
+          <!-- 髪 -->
+          <a-sphere
+            position="0 0.72 -0.02"
+            radius="0.103"
+            scale="1 0.35 1"
+            color="#604753">
+          </a-sphere>
+
+          <!-- 目 -->
+          <a-sphere position="-0.038 0.65 0.095"
+            radius="0.009" color="#463740"></a-sphere>
+          <a-sphere position="0.038 0.65 0.095"
+            radius="0.009" color="#463740"></a-sphere>
+
+          <!-- 口 -->
+          <a-box position="0 0.60 0.099"
+            width="0.04" height="0.008"
+            depth="0.005" color="#b96f78"></a-box>
+
+          <!-- 首 -->
+          <a-cylinder position="0 0.53 0"
+            radius="0.035" height="0.07"
+            color="#f4bfa6"></a-cylinder>
+
+          <!-- 胸 -->
+          <a-box id="part-chest"
+            position="0 0.405 0"
+            width="0.25" height="0.20"
+            depth="0.12"
+            color="#83c6c9"></a-box>
+
+          <!-- お腹 -->
+          <a-box id="part-abdomen"
+            position="0 0.27 0"
+            width="0.22" height="0.095"
+            depth="0.115"
+            color="#83c6c9"></a-box>
+
+          <!-- 左腕 -->
+          <a-cylinder id="part-leftarm"
+            position="-0.16 0.38 0"
+            radius="0.034" height="0.24"
+            rotation="0 0 -12"
+            color="#f4bfa6"></a-cylinder>
+
+          <!-- 右腕 -->
+          <a-cylinder id="part-rightarm"
+            position="0.16 0.38 0"
+            radius="0.034" height="0.24"
+            rotation="0 0 12"
+            color="#f4bfa6"></a-cylinder>
+
+          <!-- 左足 -->
+          <a-cylinder id="part-leftleg"
+            position="-0.065 0.115 0"
+            radius="0.045" height="0.22"
+            color="#7798ce"></a-cylinder>
+
+          <!-- 右足 -->
+          <a-cylinder id="part-rightleg"
+            position="0.065 0.115 0"
+            radius="0.045" height="0.22"
+            color="#7798ce"></a-cylinder>
+
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+  </a-marker>
+
+  <a-entity camera></a-entity>
+</a-scene>
+
+<div id="footer">
+
+  <div id="phrase"></div>
+  <div id="question"></div>
+
+  <div class="buttons">
+    <button data-part="head">頭</button>
+    <button data-part="chest">胸</button>
+    <button data-part="abdomen">お腹</button>
+    <button data-part="arm">腕</button>
+    <button data-part="leg">足</button>
+  </div>
+
+  <div class="controls">
+    <button id="turn">前後の向きを変える</button>
+    <button id="flip">上下を反転する</button>
+  </div>
+
+  <div class="controls">
+    <button id="reset">向きを元に戻す</button>
+  </div>
+
+</div>
+
+<script>
+const examples = {
+  head: [
+    "昨日から頭が痛いです。",
+    "医師：いつから痛いですか？"
+  ],
+  chest: [
+    "息をすると胸が痛いです。",
+    "医師：どんなときに痛いですか？"
+  ],
+  abdomen: [
+    "昨日の夜からお腹が痛いです。",
+    "医師：いつから痛いですか？"
+  ],
+  arm: [
+    "右の腕が痛いです。",
+    "医師：どこが痛いですか？"
+  ],
+  leg: [
+    "歩くと足が痛いです。",
+    "医師：歩くとどうなりますか？"
+  ]
+};
+
+const originalColors = {
+  head: "#f4bfa6",
+  chest: "#83c6c9",
+  abdomen: "#83c6c9",
+  leftarm: "#f4bfa6",
+  rightarm: "#f4bfa6",
+  leftleg: "#7798ce",
+  rightleg: "#7798ce"
+};
+
+const groups = {
+  head: ["head"],
+  chest: ["chest"],
+  abdomen: ["abdomen"],
+  arm: ["leftarm", "rightarm"],
+  leg: ["leftleg", "rightleg"]
+};
+
+function choosePart(key) {
+  document.getElementById("phrase").textContent =
+    "「" + examples[key][0] + "」";
+
+  document.getElementById("question").textContent =
+    examples[key][1];
+
+  for (const [name, color] of Object.entries(originalColors)) {
+    document.getElementById("part-" + name)
+      .setAttribute("color", color);
+  }
+
+  for (const name of groups[key]) {
+    document.getElementById("part-" + name)
+      .setAttribute("color", "#ffe05e");
+  }
+
+  document.querySelectorAll("[data-part]").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.part === key
+    );
+  });
+}
+
+document.querySelectorAll("[data-part]").forEach(button => {
+  button.addEventListener("click", () => {
+    choosePart(button.dataset.part);
+  });
+});
+
+let yaw = 0;
+let roll = 0;
+
+function updateRotation() {
+  document.getElementById("pose")
+    .setAttribute("rotation", `0 ${yaw} ${roll}`);
+}
+
+document.getElementById("turn").addEventListener("click", () => {
+  yaw = (yaw + 180) % 360;
+  updateRotation();
+});
+
+document.getElementById("flip").addEventListener("click", () => {
+  roll = (roll + 180) % 360;
+  updateRotation();
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  yaw = 0;
+  roll = 0;
+  updateRotation();
+});
+
+const marker = document.getElementById("marker");
+const status = document.getElementById("status");
+
+marker.addEventListener("markerFound", () => {
+  status.textContent = "✓ マーカーを認識しています";
+});
+
+marker.addEventListener("markerLost", () => {
+  status.textContent = "AR.jsマーカーを映してください。";
+});
+
+choosePart("abdomen");
+</script>
+
+</body>
+</html>
