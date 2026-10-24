@@ -137,6 +137,35 @@ button {
 a-scene {
   z-index: 0 !important;
 }
+/* スマートフォン用の操作パネル */
+#header {
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 2147483647 !important;
+}
+
+#footer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 2147483647 !important;
+  max-height: 48vh;
+  overflow-y: auto;
+  background: #fff0f6 !important;
+  padding: 12px !important;
+  padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+}
+
+a-scene,
+a-scene canvas,
+video {
+  pointer-events: none !important;
+}
+
+#footer button {
+  pointer-events: auto !important;
+}
 </style>
 </head>
 
