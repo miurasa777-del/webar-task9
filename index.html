@@ -30,15 +30,100 @@
       url="./my-icon-marker.patt"
       emitevents="true">
 
-      <!-- 青い3D立方体 -->
-      <a-box
-        position="0 0.10 0"
-        rotation="0 45 0"
-        width="0.2"
-        height="0.2"
-        depth="0.2"
-        color="#4CC3D9">
-      </a-box>
+     <a-entity
+  position="0 0 0"
+  animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+
+  <!-- 台 -->
+  <a-cylinder
+    position="0 0.01 0"
+    radius="0.30"
+    height="0.02"
+    color="#f7c7d8">
+  </a-cylinder>
+
+  <!-- 病院の本体 -->
+  <a-box
+    position="0 0.13 0"
+    width="0.32"
+    height="0.22"
+    depth="0.22"
+    color="#fff0f5">
+  </a-box>
+
+  <!-- 上の部分 -->
+  <a-box
+    position="0 0.27 0"
+    width="0.20"
+    height="0.10"
+    depth="0.15"
+    color="#ffe4ec">
+  </a-box>
+
+  <!-- ドア -->
+  <a-box
+    position="0 0.07 0.115"
+    width="0.06"
+    height="0.12"
+    depth="0.01"
+    color="#8fd3ff">
+  </a-box>
+
+  <!-- 左の窓 -->
+  <a-box
+    position="-0.09 0.15 0.115"
+    width="0.05"
+    height="0.05"
+    depth="0.01"
+    color="#cfefff">
+  </a-box>
+
+  <!-- 右の窓 -->
+  <a-box
+    position="0.09 0.15 0.115"
+    width="0.05"
+    height="0.05"
+    depth="0.01"
+    color="#cfefff">
+  </a-box>
+
+  <!-- 上の左窓 -->
+  <a-box
+    position="-0.05 0.27 0.08"
+    width="0.04"
+    height="0.04"
+    depth="0.01"
+    color="#cfefff">
+  </a-box>
+
+  <!-- 上の右窓 -->
+  <a-box
+    position="0.05 0.27 0.08"
+    width="0.04"
+    height="0.04"
+    depth="0.01"
+    color="#cfefff">
+  </a-box>
+
+  <!-- 赤十字（たて） -->
+  <a-box
+    position="0 0.27 0.081"
+    width="0.025"
+    height="0.08"
+    depth="0.01"
+    color="#ff5b6e">
+  </a-box>
+
+  <!-- 赤十字（よこ） -->
+  <a-box
+    position="0 0.27 0.081"
+    width="0.08"
+    height="0.025"
+    depth="0.01"
+    color="#ff5b6e">
+  </a-box>
+
+</a-entity>
 
     </a-marker>
 
