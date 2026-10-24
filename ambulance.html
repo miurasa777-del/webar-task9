@@ -3,21 +3,20 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-  <title>タスク9-1 救急車WebAR</title>
+  <title>タスク9-1 アニメーション救急車AR</title>
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
 
   <script>
-    // カメラなしプレビューかどうか
+    // URLに ?preview=1 があればカメラなし
     const previewMode =
       new URLSearchParams(location.search).has("preview");
 
-    // マーカーARのときだけAR.jsを読み込む
+    // ARモードのみAR.jsを読み込む
     if (!previewMode) {
       document.write(
         '<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"><\/script>'
@@ -38,24 +37,24 @@
       left: 12px;
       right: 12px;
       z-index: 9999;
-      background: rgba(255,255,255,0.92);
       padding: 12px;
       border-radius: 10px;
+      background: rgba(255,255,255,0.92);
       color: #222;
       font-size: 14px;
     }
 
     #status {
-      margin-top: 5px;
+      margin-top: 6px;
     }
 
     #mode-link {
       display: inline-block;
       margin-top: 8px;
-      padding: 7px 12px;
-      background: #2374b5;
-      border-radius: 8px;
+      padding: 8px 12px;
+      background: #087cbe;
       color: white;
+      border-radius: 8px;
       text-decoration: none;
     }
   </style>
@@ -64,7 +63,7 @@
 <body>
 
   <div id="info">
-    <strong id="title">救急車WebAR</strong>
+    <strong id="title">3D救急車 WebAR</strong>
     <div id="status">読み込み中...</div>
     <a id="mode-link" href="#">
       表示モードを切り替える
@@ -76,216 +75,306 @@
     const status = document.getElementById("status");
     const modeLink = document.getElementById("mode-link");
 
-    // 救急車の3Dモデル
-    // マーカーARとプレビューで共通使用
+    // ====================================
+    // タイヤの共通部品
+    // ====================================
+    // タイヤの回転軸はZ軸
+    // 車体が前進すれば回転し、
+    // 後退すれば反対方向に回転する
+
+    function createWheel(x, z) {
+
+      // 外側に向くホイールの面
+      const outerZ = z > 0 ? 0.022 : -0.022;
+
+      return `
+        <a-entity
+          position="${x} 0.065 ${z}"
+
+          animation="property: rotation;
+                     from: 0 0 0;
+                     to: 0 0 -79.3;
+                     dur: 2200;
+                     dir: alternate;
+                     loop: true;
+                     easing: easeInOutSine">
+
+          <!-- 黒いタイヤ本体 -->
+          <a-cylinder
+            position="0 0 0"
+            radius="0.065"
+            height="0.04"
+            rotation="90 0 0"
+            color="#292929">
+          </a-cylinder>
+
+          <!-- 銀色のホイール -->
+          <a-cylinder
+            position="0 0 ${outerZ}"
+            radius="0.035"
+            height="0.005"
+            rotation="90 0 0"
+            color="#D0D5DB">
+          </a-cylinder>
+
+          <!-- ホイールの回転を確認できる線 -->
+          <a-box
+            position="0.024 0 ${outerZ}"
+            width="0.035"
+            height="0.009"
+            depth="0.008"
+            color="#666666">
+          </a-box>
+
+          <a-box
+            position="0 0.024 ${outerZ}"
+            width="0.009"
+            height="0.035"
+            depth="0.008"
+            color="#666666">
+          </a-box>
+
+        </a-entity>
+      `;
+    }
+
+    // ====================================
+    // 救急車全体の3Dモデル
+    // ====================================
+
     const ambulanceModel = `
-      <a-entity id="ambulance"
+
+      <!--
+        外側：位置、大きさ、向き
+        内側：前進・後退アニメーション
+      -->
+
+      <a-entity
+        id="ambulance-placement"
         position="0.15 0 0"
-        rotation="0 0 0"
-        scale="1 1 1">
+        rotation="0 45 0"
+        scale="0.8 0.8 0.8">
 
-        <!-- 車体後部 -->
-        <a-box
-          position="-0.15 0.22 0"
-          width="0.40"
-          height="0.30"
-          depth="0.26"
-          color="#FFFFFF">
-        </a-box>
+        <a-entity
+          id="ambulance"
+          position="0 0 0"
 
-        <!-- 運転席 -->
-        <a-box
-          position="0.15 0.16 0"
-          width="0.20"
-          height="0.20"
-          depth="0.26"
-          color="#FFF5F6">
-        </a-box>
-
-        <!-- フロントガラス -->
-        <a-box
-          position="0.253 0.20 0"
-          width="0.008"
-          height="0.09"
-          depth="0.19"
-          color="#86D5F7">
-        </a-box>
-
-        <!-- 右側の窓 -->
-        <a-box
-          position="0.17 0.20 0.134"
-          width="0.11"
-          height="0.09"
-          depth="0.008"
-          color="#86D5F7">
-        </a-box>
-
-        <!-- 左側の窓 -->
-        <a-box
-          position="0.17 0.20 -0.134"
-          width="0.11"
-          height="0.09"
-          depth="0.008"
-          color="#86D5F7">
-        </a-box>
-
-        <!-- 赤いライン：右側 -->
-        <a-box
-          position="-0.15 0.17 0.135"
-          width="0.40"
-          height="0.025"
-          depth="0.009"
-          color="#F0445E">
-        </a-box>
-
-        <!-- 赤いライン：左側 -->
-        <a-box
-          position="-0.15 0.17 -0.135"
-          width="0.40"
-          height="0.025"
-          depth="0.009"
-          color="#F0445E">
-        </a-box>
-
-        <!-- 赤十字：右側 縦 -->
-        <a-box
-          position="-0.18 0.27 0.141"
-          width="0.025"
-          height="0.10"
-          depth="0.01"
-          color="#E52D4D">
-        </a-box>
-
-        <!-- 赤十字：右側 横 -->
-        <a-box
-          position="-0.18 0.27 0.143"
-          width="0.10"
-          height="0.025"
-          depth="0.01"
-          color="#E52D4D">
-        </a-box>
-
-        <!-- 赤十字：左側 縦 -->
-        <a-box
-          position="-0.18 0.27 -0.141"
-          width="0.025"
-          height="0.10"
-          depth="0.01"
-          color="#E52D4D">
-        </a-box>
-
-        <!-- 赤十字：左側 横 -->
-        <a-box
-          position="-0.18 0.27 -0.143"
-          width="0.10"
-          height="0.025"
-          depth="0.01"
-          color="#E52D4D">
-        </a-box>
-
-        <!-- 前タイヤ：右 -->
-        <a-cylinder
-          position="0.15 0.06 0.14"
-          radius="0.065"
-          height="0.04"
-          rotation="90 0 0"
-          color="#333333">
-        </a-cylinder>
-
-        <!-- 前タイヤ：左 -->
-        <a-cylinder
-          position="0.15 0.06 -0.14"
-          radius="0.065"
-          height="0.04"
-          rotation="90 0 0"
-          color="#333333">
-        </a-cylinder>
-
-        <!-- 後タイヤ：右 -->
-        <a-cylinder
-          position="-0.27 0.06 0.14"
-          radius="0.065"
-          height="0.04"
-          rotation="90 0 0"
-          color="#333333">
-        </a-cylinder>
-
-        <!-- 後タイヤ：左 -->
-        <a-cylinder
-          position="-0.27 0.06 -0.14"
-          radius="0.065"
-          height="0.04"
-          rotation="90 0 0"
-          color="#333333">
-        </a-cylinder>
-
-        <!-- ライトの台 -->
-        <a-box
-          position="-0.10 0.39 0"
-          width="0.16"
-          height="0.025"
-          depth="0.10"
-          color="#CCCCCC">
-        </a-box>
-
-        <!-- 赤い点滅ライト -->
-        <a-box
-          position="-0.14 0.42 0"
-          width="0.065"
-          height="0.04"
-          depth="0.10"
-          color="#FF2222"
-          material="transparent: true; opacity: 1"
-          animation="property: material.opacity;
-                     from: 1;
-                     to: 0.15;
-                     dur: 400;
+          animation="property: position;
+                     from: 0 0 0;
+                     to: 0.09 0 0;
+                     dur: 2200;
                      dir: alternate;
-                     loop: true">
-        </a-box>
+                     loop: true;
+                     easing: easeInOutSine">
 
-        <!-- 青い点滅ライト -->
-        <a-box
-          position="-0.06 0.42 0"
-          width="0.065"
-          height="0.04"
-          depth="0.10"
-          color="#2266FF"
-          material="transparent: true; opacity: 0.15"
-          animation="property: material.opacity;
-                     from: 0.15;
-                     to: 1;
-                     dur: 400;
-                     dir: alternate;
-                     loop: true">
-        </a-box>
+          <!-- =================== -->
+          <!-- 救急車の車体 -->
+          <!-- =================== -->
 
-        <!-- フロントのライト -->
-        <a-box
-          position="0.257 0.115 0.075"
-          width="0.01"
-          height="0.035"
-          depth="0.055"
-          color="#FFF5A8">
-        </a-box>
+          <!-- 後部の白い車体 -->
+          <a-box
+            position="-0.15 0.22 0"
+            width="0.40"
+            height="0.30"
+            depth="0.26"
+            color="#FFFFFF">
+          </a-box>
 
-        <a-box
-          position="0.257 0.115 -0.075"
-          width="0.01"
-          height="0.035"
-          depth="0.055"
-          color="#FFF5A8">
-        </a-box>
+          <!-- 前部の運転席 -->
+          <a-box
+            position="0.15 0.16 0"
+            width="0.20"
+            height="0.20"
+            depth="0.26"
+            color="#FFF5F6">
+          </a-box>
+
+          <!-- フロントガラス -->
+          <a-box
+            position="0.253 0.20 0"
+            width="0.008"
+            height="0.09"
+            depth="0.19"
+            color="#86D5F7">
+          </a-box>
+
+          <!-- 右側の窓 -->
+          <a-box
+            position="0.17 0.20 0.134"
+            width="0.11"
+            height="0.09"
+            depth="0.008"
+            color="#86D5F7">
+          </a-box>
+
+          <!-- 左側の窓 -->
+          <a-box
+            position="0.17 0.20 -0.134"
+            width="0.11"
+            height="0.09"
+            depth="0.008"
+            color="#86D5F7">
+          </a-box>
+
+          <!-- =================== -->
+          <!-- 赤いライン -->
+          <!-- =================== -->
+
+          <a-box
+            position="-0.15 0.17 0.135"
+            width="0.40"
+            height="0.025"
+            depth="0.009"
+            color="#F0445E">
+          </a-box>
+
+          <a-box
+            position="-0.15 0.17 -0.135"
+            width="0.40"
+            height="0.025"
+            depth="0.009"
+            color="#F0445E">
+          </a-box>
+
+          <!-- =================== -->
+          <!-- 赤十字 -->
+          <!-- =================== -->
+
+          <!-- 右側 -->
+          <a-box
+            position="-0.18 0.27 0.141"
+            width="0.025"
+            height="0.10"
+            depth="0.01"
+            color="#E52D4D">
+          </a-box>
+
+          <a-box
+            position="-0.18 0.27 0.143"
+            width="0.10"
+            height="0.025"
+            depth="0.01"
+            color="#E52D4D">
+          </a-box>
+
+          <!-- 左側 -->
+          <a-box
+            position="-0.18 0.27 -0.141"
+            width="0.025"
+            height="0.10"
+            depth="0.01"
+            color="#E52D4D">
+          </a-box>
+
+          <a-box
+            position="-0.18 0.27 -0.143"
+            width="0.10"
+            height="0.025"
+            depth="0.01"
+            color="#E52D4D">
+          </a-box>
+
+          <!-- =================== -->
+          <!-- 4つのタイヤ -->
+          <!-- =================== -->
+
+          <!-- 前輪・右 -->
+          ${createWheel(0.15, 0.14)}
+
+          <!-- 前輪・左 -->
+          ${createWheel(0.15, -0.14)}
+
+          <!-- 後輪・右 -->
+          ${createWheel(-0.27, 0.14)}
+
+          <!-- 後輪・左 -->
+          ${createWheel(-0.27, -0.14)}
+
+          <!-- =================== -->
+          <!-- 赤青の点滅ライト -->
+          <!-- =================== -->
+
+          <!-- ライトの台 -->
+          <a-box
+            position="-0.10 0.39 0"
+            width="0.16"
+            height="0.025"
+            depth="0.10"
+            color="#CCCCCC">
+          </a-box>
+
+          <!-- 赤いライト -->
+          <a-box
+            position="-0.14 0.42 0"
+            width="0.065"
+            height="0.04"
+            depth="0.10"
+            color="#FF2222"
+            material="transparent: true; opacity: 1"
+
+            animation="property: material.opacity;
+                       from: 1;
+                       to: 0.15;
+                       dur: 400;
+                       dir: alternate;
+                       loop: true">
+          </a-box>
+
+          <!-- 青いライト -->
+          <a-box
+            position="-0.06 0.42 0"
+            width="0.065"
+            height="0.04"
+            depth="0.10"
+            color="#2266FF"
+            material="transparent: true; opacity: 0.15"
+
+            animation="property: material.opacity;
+                       from: 0.15;
+                       to: 1;
+                       dur: 400;
+                       dir: alternate;
+                       loop: true">
+          </a-box>
+
+          <!-- =================== -->
+          <!-- 前面のヘッドライト -->
+          <!-- =================== -->
+
+          <!-- 右 -->
+          <a-box
+            position="0.257 0.115 0.075"
+            width="0.01"
+            height="0.035"
+            depth="0.055"
+            color="#FFF5A8">
+          </a-box>
+
+          <!-- 左 -->
+          <a-box
+            position="0.257 0.115 -0.075"
+            width="0.01"
+            height="0.035"
+            depth="0.055"
+            color="#FFF5A8">
+          </a-box>
+
+        </a-entity>
 
       </a-entity>
     `;
 
+    // ====================================
+    // カメラなしプレビュー
+    // ====================================
+
     if (previewMode) {
 
-      // カメラなしプレビュー
-      title.textContent = "3D救急車｜プレビュー";
+      title.textContent =
+        "3D救急車｜アニメーションプレビュー";
+
       status.textContent =
-        "カメラを使わずに3Dモデルを表示しています";
+        "車体の移動・タイヤの回転・ライトの点滅";
 
       modeLink.textContent = "マーカーARを開く";
       modeLink.href = "./ambulance.html";
@@ -298,6 +387,7 @@
           vr-mode-ui="enabled: false"
           background="color: #DDEBF6">
 
+          <!-- 周囲の明るさ -->
           <a-entity
             light="type: ambient; intensity: 0.9">
           </a-entity>
@@ -316,14 +406,10 @@
             color="#DDDDDD">
           </a-plane>
 
-          <!-- 救急車を見やすい大きさで表示 -->
-          <a-entity
-            position="0 0 0"
-            rotation="0 -30 0">
-            ${ambulanceModel}
-          </a-entity>
+          <!-- 3D救急車 -->
+          ${ambulanceModel}
 
-          <!-- 見る位置 -->
+          <!-- カメラ -->
           <a-entity
             camera
             position="0 0.8 2.2"
@@ -337,8 +423,12 @@
 
     } else {
 
+      // ====================================
       // マーカー型AR
-      title.textContent = "3D救急車｜マーカーAR";
+      // ====================================
+
+      title.textContent =
+        "3D救急車｜マーカーAR";
 
       status.textContent =
         "AR.jsマーカーを映してください";
@@ -355,21 +445,24 @@
           embedded
           vr-mode-ui="enabled: false"
           renderer="logarithmicDepthBuffer: true"
+
           arjs="sourceType: webcam;
                 debugUIEnabled: false;
                 detectionMode: mono;">
 
+          <!-- 独自マーカー -->
           <a-marker
             id="marker"
             type="pattern"
             url="./my-icon-marker.patt"
             emitevents="true">
 
-            <!-- 救急車をマーカー上に配置 -->
+            <!-- 3D救急車 -->
             ${ambulanceModel}
 
           </a-marker>
 
+          <!-- ARカメラ -->
           <a-entity camera></a-entity>
 
         </a-scene>
