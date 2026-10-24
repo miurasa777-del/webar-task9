@@ -49,12 +49,13 @@
         // 車体の前後移動
         this.el.object3D.position.x = travel;
 
-        // 移動距離からタイヤの回転角度を計算
-        const angle = -travel / d.wheelRadius;
+        // タイヤを高速回転させる
+　　　 　// 1秒間に3回転
+　　　 　const angle = -(time / 1000) * Math.PI * 2 * 3;
 
-        this.wheels.forEach(wheel => {
-          wheel.object3D.rotation.z = angle;
-        });
+　　　 　this.wheels.forEach(wheel => {
+ 　　　  wheel.object3D.rotation.z = angle;
+　　　　 });
       }
     });
   </script>
