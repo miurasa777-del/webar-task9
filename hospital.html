@@ -109,6 +109,34 @@ small {
 a {
   color: #9f486b;
 }
+/* スマートフォンで操作ボタンを最前面に表示 */
+#header,
+#footer {
+  z-index: 99999 !important;
+}
+
+#footer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0;
+  right: 0;
+  max-height: 45dvh;
+  overflow-y: auto;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.buttons {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+button {
+  min-width: 0;
+  touch-action: manipulation;
+}
+
+a-scene {
+  z-index: 0 !important;
+}
 </style>
 </head>
 
