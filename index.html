@@ -30,97 +30,186 @@
       url="./my-icon-marker.patt"
       emitevents="true">
 
-     <a-entity
+<a-entity
   position="0 0 0"
-  animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+  scale="0.8 0.8 0.8"
+  animation="property: position; dir: alternate; dur: 2000; loop: true; to: 0.18 0 0">
 
-  <!-- 台 -->
+  <!-- 地面 -->
   <a-cylinder
     position="0 0.01 0"
-    radius="0.30"
+    radius="0.32"
     height="0.02"
     color="#f7c7d8">
   </a-cylinder>
 
-  <!-- 病院の本体 -->
+  <!-- 救急車本体 -->
   <a-box
-    position="0 0.13 0"
-    width="0.32"
-    height="0.22"
-    depth="0.22"
-    color="#fff0f5">
+    position="0 0.08 0"
+    width="0.28"
+    height="0.10"
+    depth="0.14"
+    color="#ffffff">
   </a-box>
 
-  <!-- 上の部分 -->
+  <!-- 後ろ上部 -->
   <a-box
-    position="0 0.27 0"
-    width="0.20"
-    height="0.10"
-    depth="0.15"
+    position="-0.03 0.14 0"
+    width="0.16"
+    height="0.08"
+    depth="0.14"
+    color="#ffffff">
+  </a-box>
+
+  <!-- 運転席 -->
+  <a-box
+    position="0.09 0.13 0"
+    width="0.08"
+    height="0.07"
+    depth="0.14"
     color="#ffe4ec">
   </a-box>
 
-  <!-- ドア -->
+  <!-- フロントガラス -->
   <a-box
-    position="0 0.07 0.115"
-    width="0.06"
-    height="0.12"
-    depth="0.01"
-    color="#8fd3ff">
+    position="0.125 0.14 0"
+    width="0.01"
+    height="0.05"
+    depth="0.10"
+    color="#aee3ff">
   </a-box>
 
-  <!-- 左の窓 -->
+  <!-- 横の窓 -->
   <a-box
-    position="-0.09 0.15 0.115"
+    position="0.085 0.145 0.071"
     width="0.05"
+    height="0.035"
+    depth="0.01"
+    color="#aee3ff">
+  </a-box>
+
+  <a-box
+    position="0.085 0.145 -0.071"
+    width="0.05"
+    height="0.035"
+    depth="0.01"
+    color="#aee3ff">
+  </a-box>
+
+  <!-- 赤いライン -->
+  <a-box
+    position="0 0.09 0.071"
+    width="0.26"
+    height="0.02"
+    depth="0.01"
+    color="#ff6b81">
+  </a-box>
+
+  <a-box
+    position="0 0.09 -0.071"
+    width="0.26"
+    height="0.02"
+    depth="0.01"
+    color="#ff6b81">
+  </a-box>
+
+  <!-- 十字マーク風（左右） -->
+  <a-box
+    position="-0.02 0.12 0.071"
+    width="0.018"
     height="0.05"
     depth="0.01"
-    color="#cfefff">
+    color="#ff4d4d">
   </a-box>
 
-  <!-- 右の窓 -->
   <a-box
-    position="0.09 0.15 0.115"
+    position="-0.02 0.12 0.071"
     width="0.05"
+    height="0.018"
+    depth="0.01"
+    color="#ff4d4d">
+  </a-box>
+
+  <a-box
+    position="-0.02 0.12 -0.071"
+    width="0.018"
     height="0.05"
     depth="0.01"
-    color="#cfefff">
+    color="#ff4d4d">
   </a-box>
 
-  <!-- 上の左窓 -->
   <a-box
-    position="-0.05 0.27 0.08"
-    width="0.04"
-    height="0.04"
+    position="-0.02 0.12 -0.071"
+    width="0.05"
+    height="0.018"
     depth="0.01"
-    color="#cfefff">
+    color="#ff4d4d">
   </a-box>
 
-  <!-- 上の右窓 -->
-  <a-box
-    position="0.05 0.27 0.08"
-    width="0.04"
-    height="0.04"
-    depth="0.01"
-    color="#cfefff">
-  </a-box>
+  <!-- タイヤ -->
+  <a-cylinder
+    position="-0.08 0.035 0.08"
+    radius="0.03"
+    height="0.03"
+    rotation="90 0 0"
+    color="#333333"
+    animation="property: rotation; to: 450 0 0; loop: true; dur: 1000; easing: linear">
+  </a-cylinder>
 
-  <!-- 赤十字（たて） -->
-  <a-box
-    position="0 0.27 0.081"
-    width="0.025"
-    height="0.08"
-    depth="0.01"
-    color="#ff5b6e">
-  </a-box>
+  <a-cylinder
+    position="0.08 0.035 0.08"
+    radius="0.03"
+    height="0.03"
+    rotation="90 0 0"
+    color="#333333"
+    animation="property: rotation; to: 450 0 0; loop: true; dur: 1000; easing: linear">
+  </a-cylinder>
 
-  <!-- 赤十字（よこ） -->
+  <a-cylinder
+    position="-0.08 0.035 -0.08"
+    radius="0.03"
+    height="0.03"
+    rotation="90 0 0"
+    color="#333333"
+    animation="property: rotation; to: 450 0 0; loop: true; dur: 1000; easing: linear">
+  </a-cylinder>
+
+  <a-cylinder
+    position="0.08 0.035 -0.08"
+    radius="0.03"
+    height="0.03"
+    rotation="90 0 0"
+    color="#333333"
+    animation="property: rotation; to: 450 0 0; loop: true; dur: 1000; easing: linear">
+  </a-cylinder>
+
+  <!-- ライトバー台 -->
   <a-box
-    position="0 0.27 0.081"
+    position="0.02 0.19 0"
     width="0.08"
-    height="0.025"
-    depth="0.01"
-    color="#ff5b6e">
+    height="0.02"
+    depth="0.05"
+    color="#eeeeee">
+  </a-box>
+
+  <!-- 赤ライト -->
+  <a-box
+    position="-0.005 0.20 0"
+    width="0.03"
+    height="0.02"
+    depth="0.05"
+    color="#ff0000"
+    animation="property: material.opacity; from: 1; to: 0.2; dir: alternate; dur: 300; loop: true">
+  </a-box>
+
+  <!-- 青ライト -->
+  <a-box
+    position="0.045 0.20 0"
+    width="0.03"
+    height="0.02"
+    depth="0.05"
+    color="#0066ff"
+    animation="property: material.opacity; from: 0.2; to: 1; dir: alternate; dur: 300; loop: true">
   </a-box>
 
 </a-entity>
