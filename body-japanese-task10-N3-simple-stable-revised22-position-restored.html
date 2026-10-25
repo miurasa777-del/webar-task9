@@ -142,7 +142,7 @@ const syms=document.getElementById('symptoms');opts.forEach(s=>{let b=document.c
 // Position list: each colored region is on a cheerful, deliberately simplified 3D figure.
 // x,y,z, sx,sy,sz; positive z is front. Arms and legs are intentionally chubby.
 const zones=[
-['forehead',0,2.48,.24,.28,.13,.11],['throat',0,1.91,.36,.20,.20,.10],['shoulder',-.47,1.72,.1,.22,.16,.15],['arm',-.62,1.53,.21,.21,.21,.19],['chest',0,1.64,.32,.55,.30,.12],['solar',0,1.32,.36,.32,.20,.13],['lower',0,1.09,.31,.48,.23,.13],['elbow',-.64,1.31,.12,.21,.18,.18],['wrist',-.72,1.01,.12,.18,.11,.13],['thigh',-.24,.61,.15,.27,.33,.23],['knee',-.24,.36,.21,.23,.16,.17],['shin',-.24,.16,.16,.18,.23,.17],['ankle',-.25,-.13,.13,.16,.12,.13],
+['forehead',0,2.48,.50,.28,.13,.11],['throat',0,1.91,.36,.20,.20,.10],['shoulder',-.47,1.72,.1,.22,.16,.15],['arm',-.62,1.53,.21,.21,.21,.19],['chest',0,1.64,.32,.55,.30,.12],['solar',0,1.32,.36,.32,.20,.13],['lower',0,1.09,.31,.48,.23,.13],['elbow',-.64,1.31,.12,.21,.18,.18],['wrist',-.72,1.01,.12,.18,.11,.13],['thigh',-.24,.61,.15,.27,.33,.23],['knee',-.24,.36,.21,.23,.16,.17],['shin',-.24,.16,.16,.18,.23,.17],['ankle',-.25,-.13,.13,.16,.12,.13],
 ['nape',0,1.95,-.50,.19,.15,.12],['back',0,1.41,-.34,.29,.28,.12],['waist',0,1.05,-.27,.30,.17,.13],['heel',-.24,-.26,-.15,.20,.13,.16]
 ];
 function ell(x,y,z,sx,sy,sz,color,zone){let p=`<a-sphere position="${x} ${y} ${z}" scale="${sx} ${sy} ${sz}" material="color:${color};shader:standard;roughness:0.85;side:double"`;
