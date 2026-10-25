@@ -8,14 +8,16 @@
 
   <title>タスク9-1 青い立方体WebAR</title>
 
-  <!-- 参考作品に合わせたバージョン -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
 
   <script>
-    // ?preview=1 の場合はカメラを起動しない
+    // URLの ?preview=1 を確認
     const previewMode =
-      new URLSearchParams(location.search).has("preview");
+      new URLSearchParams(window.location.search)
+        .get("preview") === "1";
 
+    // マーカー型ARの場合だけAR.jsを読み込む
     if (!previewMode) {
       document.write(
         '<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"><\/script>'
@@ -30,6 +32,12 @@
       font-family: sans-serif;
     }
 
+    a-scene {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
     #info {
       position: fixed;
       top: 12px;
@@ -39,16 +47,20 @@
       background: rgba(255,255,255,0.92);
       padding: 12px;
       border-radius: 10px;
-      font-size: 14px;
       color: #222;
+      font-size: 14px;
+    }
+
+    #status {
+      margin-top: 6px;
     }
 
     #mode-link {
       display: inline-block;
       margin-top: 8px;
-      padding: 7px 12px;
+      padding: 8px 12px;
+      background: #087cbe;
       border-radius: 8px;
-      background: #2374b5;
       color: white;
       text-decoration: none;
     }
@@ -58,9 +70,13 @@
 <body>
 
   <div id="info">
-    <strong id="title">タスク9-1 WebAR</strong>
+    <strong id="title">青い立方体WebAR</strong>
+
     <div id="status">読み込み中...</div>
-    <a id="mode-link" href="#">表示モードを切り替える</a>
+
+    <a id="mode-link" href="#">
+      表示モードを切り替える
+    </a>
   </div>
 
   <script>
@@ -70,37 +86,52 @@
 
     if (previewMode) {
 
-      // カメラなしの3Dプレビュー
-      title.textContent = "青い立方体｜プレビュー";
-      status.textContent = "カメラを使用しない3D表示です";
-      modeLink.textContent = "マーカーARを開く";
+      // ==================================
+      // カメラなしプレビュー
+      // ==================================
+
+      title.textContent =
+        "青い立方体｜プレビュー";
+
+      status.textContent =
+        "カメラを使わない3D表示です";
+
+      modeLink.textContent =
+        "マーカー型ARを開く";
+
       modeLink.href = "./";
 
       document.body.insertAdjacentHTML(
         "beforeend",
         `
         <a-scene
-          embedded
           vr-mode-ui="enabled: false"
-          background="color: #dbe9f4">
+          background="color: #DDEBF6">
 
+          <!-- 水色の背景 -->
+          <a-sky color="#DDEBF6"></a-sky>
+
+          <!-- 環境光 -->
           <a-entity
             light="type: ambient; intensity: 0.9">
           </a-entity>
 
+          <!-- 方向光 -->
           <a-entity
             light="type: directional; intensity: 0.8"
             position="1 3 2">
           </a-entity>
 
+          <!-- グレーの床 -->
           <a-plane
-            position="0 0 0"
-            rotation="90 0 0"
+            position="0 -0.01 0"
+            rotation="-90 0 0"
             width="4"
             height="4"
-            color="#dddddd">
+            color="#A7B0BA">
           </a-plane>
 
+          <!-- 青い立方体 -->
           <a-box
             position="0 0.25 0"
             rotation="0 45 0"
@@ -110,11 +141,12 @@
             color="#4CC3D9">
           </a-box>
 
+          <!-- プレビュー用カメラ -->
           <a-entity
-            camera
-            position="0 0.8 2.5"
-            look-controls="enabled: false"
-            rotation="-10 0 0">
+            camera="active: true"
+            position="0 0.75 2"
+            rotation="-12 0 0"
+            look-controls="enabled: false">
           </a-entity>
 
         </a-scene>
@@ -123,10 +155,19 @@
 
     } else {
 
-      // 独自マーカーを使うAR
-      title.textContent = "青い立方体｜マーカーAR";
-      status.textContent = "AR.jsマーカーを映してください";
-      modeLink.textContent = "カメラなしで3Dを見る";
+      // ==================================
+      // マーカー型AR
+      // ==================================
+
+      title.textContent =
+        "青い立方体｜マーカーAR";
+
+      status.textContent =
+        "AR.jsマーカーを映してください";
+
+      modeLink.textContent =
+        "カメラなしで3Dを見る";
+
       modeLink.href = "?preview=1";
 
       document.body.insertAdjacentHTML(
@@ -140,37 +181,43 @@
                 debugUIEnabled: false;
                 detectionMode: mono;">
 
+          <!-- 独自マーカー -->
           <a-marker
             id="marker"
             type="pattern"
             url="./my-icon-marker.patt"
             emitevents="true">
 
+            <!-- 青い3D立方体 -->
             <a-box
-              position="0 0.15 0"
+              position="0 0.10 0"
               rotation="0 45 0"
-              width="0.3"
-              height="0.3"
-              depth="0.3"
+              width="0.2"
+              height="0.2"
+              depth="0.2"
               color="#4CC3D9">
             </a-box>
 
           </a-marker>
 
+          <!-- AR用カメラ -->
           <a-entity camera></a-entity>
 
         </a-scene>
         `
       );
 
-      const marker = document.getElementById("marker");
+      const marker =
+        document.getElementById("marker");
 
       marker.addEventListener("markerFound", () => {
-        status.textContent = "✓ マーカーを認識しています";
+        status.textContent =
+          "✓ マーカーを認識しています";
       });
 
       marker.addEventListener("markerLost", () => {
-        status.textContent = "AR.jsマーカーを映してください";
+        status.textContent =
+          "AR.jsマーカーを映してください";
       });
 
     }
