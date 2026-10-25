@@ -1,127 +1,94 @@
-
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-  <title>タスク9-1 青い立方体AR</title>
-
-  <!-- 救急車で使用しているA-Frame -->
-  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-
-  <!-- 救急車で使用しているAR.js -->
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
-
-    #panel {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      z-index: 99999;
-      padding: 12px;
-      background: rgba(255,255,255,0.93);
-      border-radius: 10px;
-      color: #222;
-      font-size: 14px;
-    }
-
-    #status {
-      margin-top: 6px;
-    }
-
-    #switch {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 9px 14px;
-      background: #2374b5;
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div id="panel">
-    <strong>青い立方体｜マーカー型AR</strong>
-
-    <div id="status">
-      AR.jsマーカーを映してください
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | FukuokaVR</title>
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container">
+      <div id="unity-canvas-container">
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
+      </div>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <button id="entervr" value="Enter VR" disabled>VR</button>
+        <button id="enterar" value="Enter AR" disabled>AR</button>
+        <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
+        <div id="unity-build-title">FukuokaVR</div>
+      </div>
     </div>
+    <script>
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/FukuokaVR_WebGL_Test.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/FukuokaVR_WebGL_Test.data",
+        frameworkUrl: buildUrl + "/FukuokaVR_WebGL_Test.framework.js",
+        codeUrl: buildUrl + "/FukuokaVR_WebGL_Test.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "FukuokaVR",
+        productVersion: "0.1.0",
+      };
 
-    <a id="switch" href="./cube-preview.html">
-      カメラなしプレビューを見る
-    </a>
-  </div>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var canvasContainer = document.querySelector("#unity-canvas-container");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var unityInstance = null;
+      
 
-  <script>
-    // 救急車と同じ方式でAR画面を生成
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `
-      <a-scene
-        embedded
-        vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true"
-        arjs="sourceType: webcam;
-              debugUIEnabled: false;
-              detectionMode: mono;">
+      canvasContainer.style.width = "960px";
+      canvasContainer.style.height = "600px";
+      loadingBar.style.display = "block";
 
-        <!-- 独自マーカー -->
-        <a-marker
-          id="marker"
-          type="pattern"
-          url="./my-icon-marker.patt"
-          emitevents="true">
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((instance) => {
+          unityInstance = instance;
+          loadingBar.style.display = "none";
+          if (fullscreenButton)
+          {
+            fullscreenButton.onclick = () => {
+              unityInstance.SetFullscreen(1);
+            };
+          }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
 
-          <!-- 青い立方体 -->
-          <a-entity
-            position="0.15 0 0"
-            rotation="0 20 0"
-            scale="0.8 0.8 0.8">
+      let enterARButton = document.getElementById('enterar');
+      let enterVRButton = document.getElementById('entervr');
 
-            <a-box
-              position="0 0.20 0"
-              width="0.4"
-              height="0.4"
-              depth="0.4"
-              color="#4CC3D9"
-              
-            </a-box>
+      document.addEventListener('onARSupportedCheck', function (event) {
+        enterARButton.disabled = !event.detail.supported;
+      }, false);
+      document.addEventListener('onVRSupportedCheck', function (event) {
+        enterVRButton.disabled = !event.detail.supported;
+      }, false);
 
-          </a-entity>
-
-        </a-marker>
-
-        <a-entity camera></a-entity>
-      </a-scene>
-      `
-    );
-
-    // マーカー認識状態
-    const marker = document.getElementById("marker");
-    const status = document.getElementById("status");
-
-    marker.addEventListener("markerFound", () => {
-      status.textContent =
-        "✓ マーカーを認識しています";
-    });
-
-    marker.addEventListener("markerLost", () => {
-      status.textContent =
-        "AR.jsマーカーを映してください";
-    });
-  </script>
-
-</body>
+      enterARButton.addEventListener('click', function (event) {
+        unityInstance.Module.WebXR.toggleAR();
+      }, false);
+      enterVRButton.addEventListener('click', function (event) {
+        unityInstance.Module.WebXR.toggleVR();
+      }, false);
+    </script>
+  </body>
 </html>
